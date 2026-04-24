@@ -1,9 +1,9 @@
 
----
+
 
 ## `AI_stats_lab.py`
 
-```python
+
 import numpy as np
 
 
@@ -22,7 +22,15 @@ def joint_cdf_unit_square(x, y):
         y                   if x >= 1 and 0 < y < 1
         1                   if x >= 1 and y >= 1
     """
-    pass
+    if x <= 0 or y <= 0:
+        return 0.0
+    if 0 < x < 1 and 0 < y < 1:
+        return x * y
+    if 0 < x < 1 and y >= 1:
+        return float(x)
+    if x >= 1 and 0 < y < 1:
+        return float(y)
+    return 1.0
 
 
 def rectangle_probability(x1, x2, y1, y2):
@@ -30,7 +38,12 @@ def rectangle_probability(x1, x2, y1, y2):
     Compute P(x1 < X <= x2, y1 < Y <= y2)
     using the joint CDF rectangle formula.
     """
-    pass
+    return (
+        joint_cdf_unit_square(x2, y2)
+        - joint_cdf_unit_square(x1, y2)
+        - joint_cdf_unit_square(x2, y1)
+        + joint_cdf_unit_square(x1, y1)
+    )
 
 
 def marginal_fx_unit_square(x):
@@ -41,7 +54,9 @@ def marginal_fx_unit_square(x):
         1   if 0 < x < 1
         0   otherwise
     """
-    pass
+    if 0 < x < 1:
+        return 1.0
+    return 0.0
 
 
 def marginal_fy_unit_square(y):
@@ -52,7 +67,9 @@ def marginal_fy_unit_square(y):
         1   if 0 < y < 1
         0   otherwise
     """
-    pass
+    if 0 < y < 1:
+        return 1.0
+    return 0.0
 
 
 # -------------------------------------------------
@@ -70,25 +87,41 @@ def joint_pmf_heads(x, y):
         x=0      1/4   1/4    0
         x=1       0    1/4   1/4
     """
-    pass
+    if x == 0 and y == 0:
+        return 0.25
+    if x == 0 and y == 1:
+        return 0.25
+    if x == 1 and y == 1:
+        return 0.25
+    if x == 1 and y == 2:
+        return 0.25
+    return 0.0
 
 
 def marginal_px_heads(x):
     """
     Return P_X(x) by summing the joint PMF over y.
     """
-    pass
+    if x not in (0, 1):
+        return 0.0
+    return sum(joint_pmf_heads(x, y) for y in (0, 1, 2))
 
 
 def marginal_py_heads(y):
     """
     Return P_Y(y) by summing the joint PMF over x.
     """
-    pass
+    if y not in (0, 1, 2):
+        return 0.0
+    return sum(joint_pmf_heads(x, y) for x in (0, 1))
 
 
 def check_independence_heads():
     """
     Return True if X and Y are independent, else False.
     """
-    pass
+    for x in (0, 1):
+        for y in (0, 1, 2):
+            if not np.isclose(joint_pmf_heads(x, y), marginal_px_heads(x) * marginal_py_heads(y)):
+                return False
+    return True
